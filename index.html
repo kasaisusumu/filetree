@@ -230,7 +230,45 @@
   let fileIdCounter = Number(localStorage.getItem("fileIdCounter") || "1");
   if (!folders[currentFolder]) {
     folders[currentFolder] = { id: fileIdCounter++, name: "root", content: "", children: [] };
-    saveData();
+    if (!folders[currentFolder]) {
+  if (currentFolder === "default") {
+    // default フォルダには初期の root ＋ 子＋兄弟ファイル
+    folders[currentFolder] = {
+      id: fileIdCounter++,
+      name: "root",
+      content: "rootの内容",
+      children: [
+        {
+          id: fileIdCounter++,
+          name: "子ファイル1",
+          content: "これは子ファイル1の内容です",
+          children: []
+        }
+      ]
+    };
+
+    // root と同階層の兄弟ファイル（兄弟という表現がこちらの意味なら）
+    folders["default_sibling_" + fileIdCounter] = {
+      id: fileIdCounter++,
+      name: "兄弟ファイル1",
+      content: "これは兄弟ファイル1の内容です",
+      children: []
+    };
+
+  } else {
+    // 新規フォルダ（default以外）は root ノードのみ
+    folders[currentFolder] = {
+      id: fileIdCounter++,
+      name: "root",
+      content: "",
+      children: []
+    };
+  }
+
+  localStorage.setItem("fileIdCounter", fileIdCounter);
+  localStorage.setItem("folders", JSON.stringify(folders));
+}
+	saveData();
   }
 
   function saveData() {
