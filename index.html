@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>ファイル変更履歴ツリー</title>
+  <title>｛PC用｝ファイル変更履歴ツリー</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <style>
     body {
@@ -201,13 +201,42 @@
 </head>
 <body>
 
-<h2>ファイル変更履歴ツリー</h2>
+<h2>｛PC用｝ファイル変更履歴ツリー</h2>
+
 <p class="info-text">
   ・このツリーでは、各ファイルやフォルダの変更履歴を階層構造で管理できます。<br>
   ・ファイル名の右には説明文の先頭行が表示されます。<br>
   ・<span class="add-child-btn static-btn">＋</span> は子ファイルの追加、<br>
   <span class="add-sibling-btn static-btn">＋</span> は兄弟ファイルの追加です。
 </p>
+<!-- ハンバーガーボタン -->
+<button id="hamburgerBtn" aria-label="メニュー" style="position: fixed; top: 10px; left: 10px; z-index: 1000;">
+  ☰
+</button>
+
+<!-- メニュー -->
+<nav id="sideMenu" style="
+  position: fixed;
+  top: 0; left: 0;
+  width: 250px;
+  height: 100%;
+  background: #f5f5f5;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+  transform: translateX(-300px);
+  transition: transform 0.3s ease;
+  padding: 20px;
+  font-family: sans-serif;
+  overflow-y: auto;
+  z-index: 999;
+">
+  <h2>利用規約</h2>
+  <ul>
+	<li>本サイトを使用した場合、以下の注意および利用規約に同意したものとします。</li>
+    <li>〇Safariで使用の方は、七日間データを操作しなかった場合データが消える可能性があります。</li>
+    <li>〇本サイト利用によって起こった一切のトラブルは責任をとれません。自己責任でご利用ください。</li>
+  </ul>
+  <button id="closeMenuBtn" style="margin-top: 20px;">閉じる</button>
+</nav>
 
 
 
@@ -602,7 +631,23 @@ document.getElementById("printButton").addEventListener("click", () => {
     document.getElementById("output").textContent = "現在のフォルダが見つかりません。";
   }
 });
+const hamburgerBtn = document.getElementById("hamburgerBtn");
+const sideMenu = document.getElementById("sideMenu");
+const closeMenuBtn = document.getElementById("closeMenuBtn");
 
+hamburgerBtn.addEventListener("click", () => {
+  sideMenu.style.transform = "translateX(0)";
+});
+
+closeMenuBtn.addEventListener("click", () => {
+  sideMenu.style.transform = "translateX(-300px)";
+});
+
+sideMenu.addEventListener("click", (e) => {
+  if (e.target === sideMenu) {
+    sideMenu.style.transform = "translateX(-300px)";
+  }
+});
 
 
   updateFolderSelect();
