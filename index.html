@@ -215,23 +215,81 @@
   <select id="folderSelect"></select>
   <button onclick="addFolder()">＋ フォルダ追加</button>
   <button onclick="deleteFolder()">🗑 フォルダ削除</button>
+  <!-- 出力ボタン -->
+<button id="printButton">出力</button>
 </div>
 
 <div id="treeWrapper">
   <ul id="treeRoot"></ul>
 </div>
+<!-- ツリー出力エリア -->
+<div id="output" style="white-space: pre-wrap; font-family: monospace;"></div>
 
 <div id="popup" style="display:none;"></div>
 
 
 <script>
+
+	document.getElementById("printButton").addEventListener("click", () => {
+  const folders = JSON.parse(localStorage.getItem("folders"));
+  const current = localStorage.getItem("currentFolder") || "default";
+  const treeText = printTreeToText(folders[current]);
+  document.getElementById("outputArea").textContent = treeText;
+});
+
+
   let folders = JSON.parse(localStorage.getItem("folders") || "{}");
-  let currentFolder = Object.keys(folders)[0] || "default";
+  let currentFolder = Object.keys(folders)[0] || "使い方";
   let fileIdCounter = Number(localStorage.getItem("fileIdCounter") || "1");
   if (!folders[currentFolder]) {
-    folders[currentFolder] = { id: fileIdCounter++, name: "root", content: "", children: [] };
-    saveData();
+  if (currentFolder === "使い方") {
+    // default フォルダに初期ファイル構成を追加
+    const rootId = fileIdCounter++;
+    const child1Id = fileIdCounter++;
+    const sibling1Id = fileIdCounter++;
+    const sub1Id = fileIdCounter++;
+    const sub2Id = fileIdCounter++;
+    const sub3Id = fileIdCounter++;
+    const sub4Id = fileIdCounter++;
+    const sub5Id = fileIdCounter++;
+
+    folders[currentFolder] = {
+      id: rootId,
+      name: "ファイル名",
+      content: "ここに説明文が表示されます",
+      children: [
+        {
+          id: child1Id,
+          name: "青の➕ボタンで",
+          content: "子供ファイルを追加",
+          children: []
+        },
+        {
+          id: sibling1Id,
+          name: "緑の➕ボタンで",
+          content: "兄弟ファイルを追加",
+          children: [
+            
+          ]
+        }
+      ]
+    };
+  } else {
+    // 新規フォルダには root のみ
+    folders[currentFolder] = {
+      id: fileIdCounter++,
+      name: "root",
+      content: "",
+      children: []
+    };
   }
+
+  localStorage.setItem("fileIdCounter", fileIdCounter);
+  localStorage.setItem("folders", JSON.stringify(folders));
+  saveData();
+}
+
+  
 
   function saveData() {
     localStorage.setItem("folders", JSON.stringify(folders));
@@ -260,17 +318,27 @@
     renderTree();
   }
 
-  function updateFolderSelect() {
-    const select = document.getElementById("folderSelect");
-    select.innerHTML = "";
-    Object.keys(folders).forEach(name => {
-      const option = document.createElement("option");
-      option.value = name;
-      option.textContent = name;
-      if (name === currentFolder) option.selected = true;
-      select.appendChild(option);
-    });
-  }
+ function updateFolderSelect() {
+  const select = document.getElementById("folderSelect");
+  select.innerHTML = "";
+  Object.keys(folders).forEach(name => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+
+    if (name === currentFolder) option.selected = true;
+    select.appendChild(option);
+  });
+
+  // ここで currentFolder を localStorage に保存
+  document.getElementById("folderSelect").addEventListener("change", (e) => {
+  currentFolder = e.target.value;
+  localStorage.setItem("currentFolder", currentFolder); // ★ ここ重要
+  render();
+});
+
+}
+
 
   document.getElementById("folderSelect").onchange = e => {
     currentFolder = e.target.value;
@@ -505,6 +573,37 @@ function renderNode(node, parentElement) {
     }
     return null;
   }
+  
+
+  function printTreeToHTML(node, depth = 0) {
+  
+  const indent = "  ".repeat(depth);
+  let html = `${indent}└ ${node.name}（${node.content}）\n`;
+  if (node.children && node.children.length > 0) {
+    node.children.forEach(child => {
+      html += printTreeToHTML(child, depth + 1);
+    });
+  }
+  return html;
+}
+
+document.getElementById("printButton").addEventListener("click", () => {
+  const folders = JSON.parse(localStorage.getItem("folders") || "{}");
+
+  // 表示中の currentFolder を取得
+  
+  const currentFolder = localStorage.getItem("currentFolder") || Object.keys(folders)[0];
+  const root = folders[currentFolder];
+
+  if (root) {
+    const result = printTreeToHTML(root);
+    document.getElementById("output").textContent = result;
+  } else {
+    document.getElementById("output").textContent = "現在のフォルダが見つかりません。";
+  }
+});
+
+
 
   updateFolderSelect();
   renderTree();
